@@ -1,0 +1,13 @@
+node_modules/**/*
+.expo/*
+npm-debug.*
+*.jks
+*.p12
+*.key
+*.mobileprovision
+
+# MacOS index files
+.DS_Store
+
+# Vscode's project settings
+.vscode

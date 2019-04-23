@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "module": "es2015",
+        "target": "es2015",
+        "importHelpers": true,
+        "baseUrl": ".",
+        "jsx": "react-native",
+
+        "strict": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "allowUnreachableCode": false,
+        "forceConsistentCasingInFileNames": true
+    },
+    "include": [
+        "App.ts",
+        "src/**/*"
+    ]
+}
