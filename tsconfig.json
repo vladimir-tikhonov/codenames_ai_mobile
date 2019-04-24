@@ -7,6 +7,7 @@
         "importHelpers": true,
         "baseUrl": ".",
         "jsx": "react-native",
+        "experimentalDecorators": true,
 
         "strict": true,
         "alwaysStrict": true,

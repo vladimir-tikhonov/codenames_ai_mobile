@@ -1,25 +1,25 @@
 import { AntDesign } from '@expo/vector-icons';
+import { inject, observer } from 'mobx-react';
 import React from 'react';
 import { StyleSheet, Switch, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
+import { AppState } from 'src/entities/AppState';
 import { Team } from 'src/entities/Team';
 
-interface IGameConfigScreenState {
-    selectedTeam: Team;
-    aiHelp: boolean;
+interface IInjectedProps {
+    appState: AppState;
 }
 
-export class GameConfigScreen extends React.PureComponent<NavigationTransitionProps, IGameConfigScreenState> {
+@inject('appState')
+@observer
+export class GameConfigScreen extends React.Component<NavigationTransitionProps & IInjectedProps> {
     public static navigationOptions = {
         title: 'Configure your game',
     };
 
-    public state = {
-        selectedTeam: Team.Blue,
-        aiHelp: true,
-    };
-
     public render() {
+        const { enableAi } = this.props.appState;
+
         return (
             <View style={styles.screenContainer}>
                 <View style={styles.teamSelectorContainer}>
@@ -28,9 +28,9 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
                     {this.renderTeamSelector(Team.Red, styles.teamSelectorRed)}
                 </View>
                 <View style={styles.aiHelpContainer}>
-                    <Switch value={this.state.aiHelp} onValueChange={this.toggleAiHelp} />
+                    <Switch value={enableAi} onValueChange={this.toggleAiHelp} />
                     <Text style={styles.aiHelpLabel} onPress={this.toggleAiHelp}>
-                        AI Help: {this.state.aiHelp ? 'On ' : 'Off'}
+                        AI Help: {enableAi ? 'On ' : 'Off'}
                     </Text>
                 </View>
                 <View style={styles.continueButtomWrapper}>
@@ -45,12 +45,12 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
     }
 
     private renderTeamSelector(team: Team, additionalStyles: object) {
-        const onSelection = () => this.setState({ selectedTeam: team });
+        const onSelection = () => (this.props.appState.selectedTeam = team);
 
         return (
             <TouchableWithoutFeedback onPress={onSelection}>
                 <View style={{ ...styles.teamSelector, ...additionalStyles }}>
-                    {team === this.state.selectedTeam ? (
+                    {team === this.props.appState.selectedTeam ? (
                         <AntDesign name="checkcircleo" size={36} color="white" />
                     ) : null}
                 </View>
@@ -59,7 +59,7 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
     }
 
     private toggleAiHelp = () => {
-        this.setState({ aiHelp: !this.state.aiHelp });
+        this.props.appState.enableAi = !this.props.appState.enableAi;
     };
 }
 
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     },
     teamSelectorContainer: {
         flex: 0.5,
-        marginTop: 20,
+        marginTop: 30,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },
