@@ -74,12 +74,13 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
     },
     button: {
         backgroundColor: '#EBDEC4',
         borderRadius: 15,
         padding: 20,
+        marginBottom: 100,
     },
     buttonText: {
         fontFamily: 'sky-fall',

@@ -1,11 +1,12 @@
 import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Switch, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
 import { Team } from 'src/entities/Team';
 
 interface IGameConfigScreenState {
     selectedTeam: Team;
+    aiHelp: boolean;
 }
 
 export class GameConfigScreen extends React.PureComponent<NavigationTransitionProps, IGameConfigScreenState> {
@@ -15,6 +16,7 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
 
     public state = {
         selectedTeam: Team.Blue,
+        aiHelp: true,
     };
 
     public render() {
@@ -24,6 +26,19 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
                     <Text style={styles.chooseTeamHeader}>Choose you team</Text>
                     {this.renderTeamSelector(Team.Blue, styles.teamSelectorBlue)}
                     {this.renderTeamSelector(Team.Red, styles.teamSelectorRed)}
+                </View>
+                <View style={styles.aiHelpContainer}>
+                    <Switch value={this.state.aiHelp} onValueChange={this.toggleAiHelp} />
+                    <Text style={styles.aiHelpLabel} onPress={this.toggleAiHelp}>
+                        AI Help: {this.state.aiHelp ? 'On ' : 'Off'}
+                    </Text>
+                </View>
+                <View style={styles.continueButtomWrapper}>
+                    <TouchableOpacity>
+                        <View style={styles.button}>
+                            <Text style={styles.buttonText}>Continue</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         );
@@ -42,6 +57,10 @@ export class GameConfigScreen extends React.PureComponent<NavigationTransitionPr
             </TouchableWithoutFeedback>
         );
     }
+
+    private toggleAiHelp = () => {
+        this.setState({ aiHelp: !this.state.aiHelp });
+    };
 }
 
 const styles = StyleSheet.create({
@@ -51,9 +70,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     teamSelectorContainer: {
-        flex: 1,
+        flex: 0.5,
+        marginTop: 20,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
     },
     chooseTeamHeader: {
         fontFamily: 'sky-fall',
@@ -72,5 +92,31 @@ const styles = StyleSheet.create({
     },
     teamSelectorRed: {
         backgroundColor: '#D5393A',
+    },
+    aiHelpContainer: {
+        flex: 0.5,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    aiHelpLabel: {
+        fontFamily: 'sky-fall',
+        fontSize: 16,
+        paddingTop: 30,
+        paddingBottom: 30,
+    },
+    continueButtomWrapper: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    button: {
+        backgroundColor: '#EBDEC4',
+        borderRadius: 15,
+        padding: 20,
+        marginBottom: 100,
+    },
+    buttonText: {
+        fontFamily: 'sky-fall',
+        fontSize: 24,
     },
 });
