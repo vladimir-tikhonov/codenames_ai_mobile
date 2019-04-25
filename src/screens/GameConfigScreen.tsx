@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
-import { StyleSheet, Switch, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Switch, Text, TouchableHighlight, TouchableWithoutFeedback, View } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
 import { AppState } from 'src/entities/AppState';
 import { Team } from 'src/entities/Team';
@@ -30,15 +30,18 @@ export class GameConfigScreen extends React.Component<NavigationTransitionProps 
                 <View style={styles.aiHelpContainer}>
                     <Switch value={enableAi} onValueChange={this.toggleAiHelp} />
                     <Text style={styles.aiHelpLabel} onPress={this.toggleAiHelp}>
-                        AI Help: {enableAi ? 'On ' : 'Off'}
+                        AI Help: <Text style={{ fontWeight: 'bold' }}>{enableAi ? 'On ' : 'Off'}</Text>
                     </Text>
                 </View>
                 <View style={styles.continueButtomWrapper}>
-                    <TouchableOpacity>
-                        <View style={styles.button}>
-                            <Text style={styles.buttonText}>Continue</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <TouchableHighlight
+                        style={styles.button}
+                        onPress={this.goNext}
+                        underlayColor="#EBDEC4"
+                        activeOpacity={1}
+                    >
+                        <Text style={styles.buttonText}>Continue</Text>
+                    </TouchableHighlight>
                 </View>
             </View>
         );
@@ -61,6 +64,10 @@ export class GameConfigScreen extends React.Component<NavigationTransitionProps 
     private toggleAiHelp = () => {
         this.props.appState.enableAi = !this.props.appState.enableAi;
     };
+
+    private goNext = () => {
+        this.props.navigation.navigate('Words');
+    };
 }
 
 const styles = StyleSheet.create({
@@ -76,14 +83,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     chooseTeamHeader: {
-        fontFamily: 'sky-fall',
-        fontSize: 18,
+        fontSize: 20,
+        fontWeight: 'bold',
     },
     teamSelector: {
         alignItems: 'center',
         justifyContent: 'center',
         width: 200,
-        height: 75,
+        height: 60,
         borderRadius: 15,
         marginTop: 10,
     },
@@ -100,8 +107,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     aiHelpLabel: {
-        fontFamily: 'sky-fall',
-        fontSize: 16,
+        fontSize: 18,
         paddingTop: 30,
         paddingBottom: 30,
     },
@@ -113,10 +119,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#EBDEC4',
         borderRadius: 15,
         padding: 20,
-        marginBottom: 100,
+        marginBottom: 40,
     },
     buttonText: {
-        fontFamily: 'sky-fall',
-        fontSize: 24,
+        fontSize: 26,
     },
 });

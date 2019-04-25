@@ -1,46 +1,32 @@
-import { Font, LinearGradient } from 'expo';
+import { LinearGradient } from 'expo';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
 
-interface IInitialScreenState {
-    fontLoaded: boolean;
-}
-
-export class InitialScreen extends React.PureComponent<NavigationTransitionProps, IInitialScreenState> {
+export class InitialScreen extends React.PureComponent<NavigationTransitionProps> {
     public static navigationOptions = {
         header: null,
     };
 
-    public state = {
-        fontLoaded: false,
-    };
-
-    public async componentDidMount() {
-        await Font.loadAsync({
-            'sky-fall': require('assets/fonts/sky_fall.ttf'),
-        });
-
-        this.setState({ fontLoaded: true });
-    }
-
     public render() {
-        if (!this.state.fontLoaded) {
-            return null;
-        }
-
         return (
             <LinearGradient style={styles.screenContainer} colors={['#842552', '#C76D57', '#EEA744', '#F8D047']}>
                 <View style={styles.headerContainer}>
                     <Text style={{ ...styles.header, ...styles.headerWhite }}>CodeNames</Text>
                     <Text style={{ ...styles.header, ...styles.headerBlack }}>AI</Text>
                 </View>
+                <View style={styles.imageContainer}>
+                    <Image source={require('assets/images/bond.png')} style={styles.image} />
+                </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={this.startGame}>
-                        <View style={styles.button}>
-                            <Text style={styles.buttonText}>Start Game</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <TouchableHighlight
+                        style={styles.button}
+                        onPress={this.startGame}
+                        underlayColor="#EBDEC4"
+                        activeOpacity={1}
+                    >
+                        <Text style={styles.buttonText}>Start Game</Text>
+                    </TouchableHighlight>
                 </View>
             </LinearGradient>
         );
@@ -59,7 +45,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'row',
-        flex: 1,
+        height: 150,
         alignItems: 'center',
     },
     header: {
@@ -72,18 +58,24 @@ const styles = StyleSheet.create({
     headerBlack: {
         color: 'black',
     },
-    buttonContainer: {
+    imageContainer: {
         flex: 1,
+    },
+    image: {
+        flex: 1,
+        resizeMode: 'contain',
+    },
+    buttonContainer: {
+        height: 150,
         justifyContent: 'flex-end',
     },
     button: {
         backgroundColor: '#EBDEC4',
         borderRadius: 15,
         padding: 20,
-        marginBottom: 100,
+        marginBottom: 40,
     },
     buttonText: {
-        fontFamily: 'sky-fall',
-        fontSize: 24,
+        fontSize: 26,
     },
 });
