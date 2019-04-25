@@ -1,4 +1,5 @@
 import { AntDesign } from '@expo/vector-icons';
+import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import { StyleSheet, Switch, Text, TouchableHighlight, TouchableWithoutFeedback, View } from 'react-native';
@@ -37,7 +38,7 @@ export class GameConfigScreen extends React.Component<NavigationTransitionProps 
                     <TouchableHighlight
                         style={styles.button}
                         onPress={this.goNext}
-                        underlayColor="#EBDEC4"
+                        underlayColor={colors.bystander}
                         activeOpacity={1}
                     >
                         <Text style={styles.buttonText}>Continue</Text>
@@ -95,10 +96,10 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     teamSelectorBlue: {
-        backgroundColor: '#357BA4',
+        backgroundColor: colors.blue,
     },
     teamSelectorRed: {
-        backgroundColor: '#D5393A',
+        backgroundColor: colors.red,
     },
     aiHelpContainer: {
         flex: 0.5,
@@ -116,9 +117,11 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     button: {
-        backgroundColor: '#EBDEC4',
+        backgroundColor: colors.bystander,
         borderRadius: 15,
-        padding: 20,
+        alignItems: 'center',
+        width: 200,
+        paddingVertical: 15,
         marginBottom: 40,
     },
     buttonText: {

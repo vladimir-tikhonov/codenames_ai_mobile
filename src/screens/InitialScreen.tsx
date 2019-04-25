@@ -1,3 +1,4 @@
+import * as colors from 'config/colors';
 import { LinearGradient } from 'expo';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
@@ -10,7 +11,7 @@ export class InitialScreen extends React.PureComponent<NavigationTransitionProps
 
     public render() {
         return (
-            <LinearGradient style={styles.screenContainer} colors={['#842552', '#C76D57', '#EEA744', '#F8D047']}>
+            <LinearGradient style={styles.screenContainer} colors={colors.gradient}>
                 <View style={styles.headerContainer}>
                     <Text style={{ ...styles.header, ...styles.headerWhite }}>CodeNames</Text>
                     <Text style={{ ...styles.header, ...styles.headerBlack }}>AI</Text>
@@ -22,7 +23,7 @@ export class InitialScreen extends React.PureComponent<NavigationTransitionProps
                     <TouchableHighlight
                         style={styles.button}
                         onPress={this.startGame}
-                        underlayColor="#EBDEC4"
+                        underlayColor={colors.bystander}
                         activeOpacity={1}
                     >
                         <Text style={styles.buttonText}>Start Game</Text>
@@ -70,9 +71,11 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     button: {
-        backgroundColor: '#EBDEC4',
+        backgroundColor: colors.bystander,
         borderRadius: 15,
-        padding: 20,
+        alignItems: 'center',
+        width: 200,
+        paddingVertical: 15,
         marginBottom: 40,
     },
     buttonText: {

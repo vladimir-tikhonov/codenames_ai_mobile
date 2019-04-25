@@ -1,4 +1,5 @@
 import { AntDesign, SimpleLineIcons } from '@expo/vector-icons';
+import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import {
@@ -42,11 +43,7 @@ export class WordsScreen extends React.Component<IInjectedProps> {
         return (
             <View style={styles.screenContainer}>
                 <KeyboardAvoidingView behavior="padding" style={styles.wordListContainer} keyboardVerticalOffset={100}>
-                    <FlatList
-                        style={styles.wordListContainer}
-                        data={addKeys(this.props.appState.codeNames)}
-                        renderItem={this.renderWord}
-                    />
+                    {this.renderWordList()}
                     <View style={styles.textInputContainer}>
                         <TextInput
                             ref={this.inputRef}
@@ -57,19 +54,53 @@ export class WordsScreen extends React.Component<IInjectedProps> {
                         />
                         <View style={styles.cameraButtonWrapper}>
                             <TouchableHighlight>
-                                <SimpleLineIcons name="camera" size={30} color="#EBDEC4" />
+                                <SimpleLineIcons name="camera" size={30} color={colors.bystander} />
                             </TouchableHighlight>
                         </View>
                     </View>
                 </KeyboardAvoidingView>
                 <View style={styles.buttonContainer}>
-                    <TouchableHighlight style={styles.continueButton} underlayColor="#EBDEC4" activeOpacity={1}>
-                        <Text style={styles.continueButtonText}>Continue</Text>
+                    <TouchableHighlight
+                        disabled={this.isNothingSelected()}
+                        style={styles.continueButton}
+                        underlayColor={colors.bystander}
+                        activeOpacity={1}
+                    >
+                        <Text
+                            style={{
+                                ...styles.continueButtonText,
+                                ...(this.isNothingSelected() && styles.continueButtonTextDisabled),
+                            }}
+                        >
+                            Continue
+                        </Text>
                     </TouchableHighlight>
                 </View>
             </View>
         );
     }
+
+    private isNothingSelected = () => {
+        return this.props.appState.codeNames.length === 0;
+    };
+
+    private renderWordList = () => {
+        if (this.isNothingSelected()) {
+            return (
+                <View style={{ ...styles.wordListContainer, ...styles.wordListContainerEmpty }}>
+                    <Text style={styles.wordsPlaceholder}>Nothing here yet :)</Text>
+                </View>
+            );
+        }
+
+        return (
+            <FlatList
+                style={styles.wordListContainer}
+                data={addKeys(this.props.appState.codeNames)}
+                renderItem={this.renderWord}
+            />
+        );
+    };
 
     private renderWord = (wordInfo: ListRenderItemInfo<ICondenameWithKey>) => {
         const onRemove = () => this.props.appState.removeWordFromCodeNames(wordInfo.item.codename.word);
@@ -78,7 +109,7 @@ export class WordsScreen extends React.Component<IInjectedProps> {
             <View key={wordInfo.item.key} style={styles.wordContainer}>
                 <Text style={styles.word}>{wordInfo.item.codename.word.toLowerCase()}</Text>
                 <TouchableHighlight onPress={onRemove}>
-                    <AntDesign name="delete" size={32} color="#EBDEC4" />
+                    <AntDesign name="delete" size={32} color={colors.bystander} />
                 </TouchableHighlight>
             </View>
         );
@@ -105,6 +136,14 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
     },
+    wordListContainerEmpty: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    wordsPlaceholder: {
+        opacity: 0.5,
+        fontSize: 20,
+    },
     wordContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -113,7 +152,7 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: 'white',
         borderBottomWidth: 2,
-        borderBottomColor: '#EFEFEF',
+        borderBottomColor: colors.gray,
         paddingLeft: 15,
         paddingRight: 15,
     },
@@ -129,7 +168,7 @@ const styles = StyleSheet.create({
     textInput: {
         flex: 1,
         borderBottomWidth: 2,
-        borderBottomColor: '#EFEFEF',
+        borderBottomColor: colors.gray,
     },
     cameraButtonWrapper: {
         height: 40,
@@ -137,19 +176,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderBottomWidth: 2,
-        borderBottomColor: '#EFEFEF',
+        borderBottomColor: colors.gray,
     },
     buttonContainer: {
         height: 130,
         justifyContent: 'flex-end',
     },
     continueButton: {
-        backgroundColor: '#EBDEC4',
+        backgroundColor: colors.bystander,
         borderRadius: 15,
-        padding: 20,
+        alignItems: 'center',
+        width: 200,
+        paddingVertical: 15,
         marginBottom: 40,
     },
     continueButtonText: {
         fontSize: 26,
+    },
+    continueButtonTextDisabled: {
+        opacity: 0.3,
     },
 });
