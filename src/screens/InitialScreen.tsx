@@ -1,8 +1,9 @@
 import * as colors from 'config/colors';
 import { LinearGradient } from 'expo';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
+import { NextStepButtonWithContainer } from 'src/components/NextStepButtonWithContainer';
 
 export class InitialScreen extends React.PureComponent<NavigationTransitionProps> {
     public static navigationOptions = {
@@ -19,21 +20,12 @@ export class InitialScreen extends React.PureComponent<NavigationTransitionProps
                 <View style={styles.imageContainer}>
                     <Image source={require('assets/images/bond.png')} style={styles.image} />
                 </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableHighlight
-                        style={styles.button}
-                        onPress={this.startGame}
-                        underlayColor={colors.bystander}
-                        activeOpacity={1}
-                    >
-                        <Text style={styles.buttonText}>Start Game</Text>
-                    </TouchableHighlight>
-                </View>
+                <NextStepButtonWithContainer onPress={this.goNext} />
             </LinearGradient>
         );
     }
 
-    private startGame = () => {
+    private goNext = () => {
         this.props.navigation.navigate('GameConfig');
     };
 }
@@ -65,20 +57,5 @@ const styles = StyleSheet.create({
     image: {
         flex: 1,
         resizeMode: 'contain',
-    },
-    buttonContainer: {
-        height: 150,
-        justifyContent: 'flex-end',
-    },
-    button: {
-        backgroundColor: colors.bystander,
-        borderRadius: 15,
-        alignItems: 'center',
-        width: 200,
-        paddingVertical: 15,
-        marginBottom: 40,
-    },
-    buttonText: {
-        fontSize: 26,
     },
 });

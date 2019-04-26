@@ -14,6 +14,8 @@ import {
     TouchableHighlight,
     View,
 } from 'react-native';
+import { NavigationTransitionProps } from 'react-navigation';
+import { NextStepButtonWithContainer } from 'src/components/NextStepButtonWithContainer';
 import { AppState } from 'src/entities/AppState';
 import { CodeName } from 'src/entities/CodeName';
 
@@ -32,7 +34,7 @@ function addKeys(codenames: CodeName[]) {
 
 @inject('appState')
 @observer
-export class WordsScreen extends React.Component<IInjectedProps> {
+export class WordsScreen extends React.Component<NavigationTransitionProps & IInjectedProps> {
     public static navigationOptions = {
         title: 'Enter Code Names',
     };
@@ -59,23 +61,7 @@ export class WordsScreen extends React.Component<IInjectedProps> {
                         </View>
                     </View>
                 </KeyboardAvoidingView>
-                <View style={styles.buttonContainer}>
-                    <TouchableHighlight
-                        disabled={this.isNothingSelected()}
-                        style={styles.continueButton}
-                        underlayColor={colors.bystander}
-                        activeOpacity={1}
-                    >
-                        <Text
-                            style={{
-                                ...styles.continueButtonText,
-                                ...(this.isNothingSelected() && styles.continueButtonTextDisabled),
-                            }}
-                        >
-                            Continue
-                        </Text>
-                    </TouchableHighlight>
-                </View>
+                <NextStepButtonWithContainer onPress={this.goNext} disabled={this.isNothingSelected()} />
             </View>
         );
     }
@@ -121,6 +107,10 @@ export class WordsScreen extends React.Component<IInjectedProps> {
             this.props.appState.addWordToCodeNames(newWord.trim());
         }
         this.inputRef.current!.clear();
+    };
+
+    private goNext = () => {
+        this.props.navigation.navigate('Roles');
     };
 }
 
@@ -177,23 +167,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderBottomWidth: 2,
         borderBottomColor: colors.gray,
-    },
-    buttonContainer: {
-        height: 130,
-        justifyContent: 'flex-end',
-    },
-    continueButton: {
-        backgroundColor: colors.bystander,
-        borderRadius: 15,
-        alignItems: 'center',
-        width: 200,
-        paddingVertical: 15,
-        marginBottom: 40,
-    },
-    continueButtonText: {
-        fontSize: 26,
-    },
-    continueButtonTextDisabled: {
-        opacity: 0.3,
     },
 });

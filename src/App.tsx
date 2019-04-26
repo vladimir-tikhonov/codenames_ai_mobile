@@ -5,6 +5,7 @@ import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { AppState } from 'src/entities/AppState';
 import { GameConfigScreen } from 'src/screens/GameConfigScreen';
 import { InitialScreen } from 'src/screens/InitialScreen';
+import { RolesScreen } from 'src/screens/RolesScreen';
 import { WordsScreen } from 'src/screens/WordsScreen';
 
 const AppNavigator = createStackNavigator(
@@ -17,6 +18,9 @@ const AppNavigator = createStackNavigator(
         },
         Words: {
             screen: WordsScreen,
+        },
+        Roles: {
+            screen: RolesScreen,
         },
     },
     {
