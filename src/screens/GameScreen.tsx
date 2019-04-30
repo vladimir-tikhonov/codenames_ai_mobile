@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Eye, EyeOff } from 'assets/icons';
 import { roleImages } from 'assets/images/map';
 import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
@@ -6,6 +6,7 @@ import React from 'react';
 import {
     Alert,
     Button,
+    Dimensions,
     ImageBackground,
     ListRenderItemInfo,
     SectionList,
@@ -15,6 +16,7 @@ import {
     TouchableHighlight,
     View,
 } from 'react-native';
+import { Scene, SceneMap, TabBar, TabBarProps, TabView } from 'react-native-tab-view';
 import { NavigationParams, NavigationTransitionProps } from 'react-navigation';
 import { AppState } from 'src/entities/AppState';
 import { CodeName } from 'src/entities/CodeName';
@@ -37,10 +39,56 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
         ),
     });
 
+    public state = {
+        index: 0,
+        routes: [{ key: 'codeNames', title: 'Code Names' }, { key: 'hints', title: 'Hints' }],
+    };
+
     public componentDidMount() {
         this.props.navigation.setParams({ finishGame: this.finishGame });
     }
 
+    public render() {
+        const dimentions = Dimensions.get('window');
+        const onIndexChange = (index: number) => this.setState({ index });
+
+        return (
+            <TabView
+                navigationState={this.state}
+                renderScene={SceneMap({
+                    codeNames: () => <WordsTab {...this.props} />,
+                    hints: () => <WordsTab {...this.props} />,
+                })}
+                onIndexChange={onIndexChange}
+                initialLayout={{ width: dimentions.width, height: dimentions.height }}
+                renderTabBar={this.renderTabBar}
+            />
+        );
+    }
+
+    private renderTabBar = (props: TabBarProps) => {
+        return <TabBar {...props} style={styles.tapBar} renderLabel={this.renderTapBarLabel} />;
+    };
+
+    private renderTapBarLabel = ({ route }: Scene<any>) => (
+        <Text style={styles.tapBarLabel}>{route.title.toUpperCase()}</Text>
+    );
+
+    private finishGame = () => {
+        Alert.alert('Finish Game', 'Are you sure?', [
+            {
+                text: 'Yes',
+                onPress: () => {
+                    this.props.navigation.navigate('Initial');
+                },
+            },
+            { text: 'No' },
+        ]);
+    };
+}
+
+@observer
+class WordsTab extends React.Component<IInjectedProps> {
     public render() {
         const keyExtractor = (codename: CodeName) => codename.word;
 
@@ -52,6 +100,7 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
                     renderItem={this.renderWord}
                     renderSectionHeader={this.renderSection}
                     keyExtractor={keyExtractor}
+                    initialNumToRender={15}
                 />
             </View>
         );
@@ -87,7 +136,7 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
         const roleImage = roleImages[codeName.role];
         const onEyePress = () => appState.toggleCodeNameVisibility(codeName);
         const isHidden = appState.hiddenCodeNames.has(codeName);
-        const eyeIcon = isHidden ? 'eye' : 'eye-off';
+        const EyeIcon = isHidden ? Eye : EyeOff;
 
         return (
             <View key={codeName.word} style={styles.wordContainer}>
@@ -99,25 +148,13 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
                 <Text style={{ ...styles.word, ...(isHidden && styles.wordHidden) }}>
                     {codeName.word.toLowerCase()}
                 </Text>
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <View style={styles.eyeIconContainer}>
                     <TouchableHighlight onPress={onEyePress}>
-                        <MaterialCommunityIcons name={eyeIcon} size={32} />
+                        <EyeIcon height={32} width={32} fill={colors.bystander} />
                     </TouchableHighlight>
                 </View>
             </View>
         );
-    };
-
-    private finishGame = () => {
-        Alert.alert('Finish Game', 'Are you sure?', [
-            {
-                text: 'Yes',
-                onPress: () => {
-                    this.props.navigation.navigate('Initial');
-                },
-            },
-            { text: 'No' },
-        ]);
     };
 }
 
@@ -131,6 +168,14 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    tapBar: {
+        backgroundColor: 'white',
+    },
+    tapBarLabel: {
+        margin: 8,
+        color: 'black',
+        fontWeight: 'bold',
     },
     wordListContainer: {
         flex: 1,
@@ -177,5 +222,10 @@ const styles = StyleSheet.create({
         height: 40,
         width: 40,
         borderRadius: 20,
+    },
+    eyeIconContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
     },
 });

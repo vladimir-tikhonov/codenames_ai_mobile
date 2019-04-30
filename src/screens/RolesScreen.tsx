@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons';
+import { CheckCircle } from 'assets/icons';
 import { roleImages } from 'assets/images/map';
 import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
@@ -22,6 +22,8 @@ interface IInjectedProps {
     appState: AppState;
 }
 
+const keyExtractor = (codename: CodeName) => codename.word;
+
 @inject('appState')
 @observer
 export class RolesScreen extends React.Component<IInjectedProps & NavigationTransitionProps> {
@@ -30,8 +32,6 @@ export class RolesScreen extends React.Component<IInjectedProps & NavigationTran
     };
 
     public render() {
-        const keyExtractor = (codename: CodeName) => codename.word;
-
         return (
             <View style={styles.screenContainer}>
                 <FlatList
@@ -39,6 +39,7 @@ export class RolesScreen extends React.Component<IInjectedProps & NavigationTran
                     data={this.props.appState.codeNames}
                     renderItem={this.renderWord}
                     keyExtractor={keyExtractor}
+                    initialNumToRender={15}
                 />
                 <NextStepButtonWithContainer onPress={this.goNext} />
             </View>
@@ -74,7 +75,7 @@ export class RolesScreen extends React.Component<IInjectedProps & NavigationTran
                         style={{ ...styles.roleImageContainer, ...(isSelected && styles.roleImageContainerSelected) }}
                         imageStyle={styles.roleImage}
                     >
-                        {isSelected && <AntDesign name="checkcircleo" size={20} color="white" />}
+                        {isSelected && <CheckCircle width={20} height={20} fill="white" />}
                     </ImageBackground>
                 </TouchableWithoutFeedback>
             );

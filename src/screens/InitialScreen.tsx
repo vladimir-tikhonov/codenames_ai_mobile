@@ -26,7 +26,7 @@ export class InitialScreen extends React.PureComponent<NavigationTransitionProps
     }
 
     private goNext = () => {
-        this.props.navigation.navigate('GameConfig');
+        this.props.navigation.navigate('Config');
     };
 }
 

@@ -1,4 +1,4 @@
-import { AntDesign, SimpleLineIcons } from '@expo/vector-icons';
+import { Camera, Trash } from 'assets/icons';
 import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
@@ -22,6 +22,8 @@ import { CodeName } from 'src/entities/CodeName';
 interface IInjectedProps {
     appState: AppState;
 }
+
+const keyExtractor = (codename: CodeName) => codename.word;
 
 @inject('appState')
 @observer
@@ -47,7 +49,7 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
                         />
                         <View style={styles.cameraButtonWrapper}>
                             <TouchableHighlight>
-                                <SimpleLineIcons name="camera" size={30} color={colors.bystander} />
+                                <Camera height={28} width={28} fill={colors.bystander} />
                             </TouchableHighlight>
                         </View>
                     </View>
@@ -70,14 +72,13 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
             );
         }
 
-        const keyExtractor = (codename: CodeName) => codename.word;
-
         return (
             <FlatList
                 style={styles.wordListContainer}
                 data={this.props.appState.codeNames}
                 renderItem={this.renderWord}
                 keyExtractor={keyExtractor}
+                initialNumToRender={15}
             />
         );
     };
@@ -89,7 +90,7 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
             <View key={wordInfo.item.word} style={styles.wordContainer}>
                 <Text style={styles.word}>{wordInfo.item.word.toLowerCase()}</Text>
                 <TouchableHighlight onPress={onRemove}>
-                    <AntDesign name="delete" size={32} color={colors.bystander} />
+                    <Trash width={30} height={30} fill={colors.bystander} />
                 </TouchableHighlight>
             </View>
         );

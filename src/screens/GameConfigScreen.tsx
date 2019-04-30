@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons';
+import { CheckCircle } from 'assets/icons';
 import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
@@ -52,7 +52,7 @@ export class GameConfigScreen extends React.Component<NavigationTransitionProps 
             <TouchableWithoutFeedback onPress={onSelection}>
                 <ImageBackground source={image} style={styles.teamSelector} imageStyle={styles.teamSelectorImage}>
                     {team === this.props.appState.selectedTeam ? (
-                        <AntDesign name="checkcircleo" size={36} color="white" />
+                        <CheckCircle width={36} height={36} fill="white" />
                     ) : null}
                 </ImageBackground>
             </TouchableWithoutFeedback>

@@ -14,7 +14,7 @@ const AppNavigator = createStackNavigator(
         Initial: {
             screen: InitialScreen,
         },
-        GameConfig: {
+        Config: {
             screen: GameConfigScreen,
         },
         Words: {
@@ -28,7 +28,7 @@ const AppNavigator = createStackNavigator(
         },
     },
     {
-        initialRouteName: 'Game',
+        initialRouteName: 'Initial',
     },
 );
 
@@ -38,15 +38,20 @@ interface IAppState {
     fontLoaded: boolean;
 }
 
+function cacheFonts(fonts: Font.FontMap[]) {
+    return fonts.map((font) => Font.loadAsync(font));
+}
+
 export default class App extends React.PureComponent<IAppState> {
     public state = {
         fontLoaded: false,
     };
 
     public async componentDidMount() {
-        await Font.loadAsync({
+        const skyFallFont = {
             'sky-fall': require('assets/fonts/sky_fall.ttf'),
-        });
+        };
+        await Promise.all(cacheFonts([skyFallFont]));
 
         this.setState({ fontLoaded: true });
     }

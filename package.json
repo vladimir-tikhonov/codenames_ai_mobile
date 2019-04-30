@@ -17,6 +17,7 @@
     "mobx-react": "^5.4.3",
     "react": "^16.8.6",
     "react-native": "^0.57.8",
+    "react-native-tab-view": "^2.2.0",
     "react-navigation": "^3.8.1",
     "tslib": "^1.9.3"
   },
@@ -24,6 +25,7 @@
     "@types/expo": "^32.0.11",
     "@types/expo__vector-icons": "^9.0.1",
     "@types/react": "^16.8.14",
+    "@types/react-native-tab-view": "^1.0.6",
     "@types/react-navigation": "^3.0.6",
     "prettier": "^1.17.0",
     "tslint": "^5.16.0",
