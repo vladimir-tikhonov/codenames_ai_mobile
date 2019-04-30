@@ -1,6 +1,6 @@
 export enum Role {
-    BlueTeam,
-    RedTeam,
+    BlueAgent,
+    RedAgent,
     Assasin,
     Bystander,
 }

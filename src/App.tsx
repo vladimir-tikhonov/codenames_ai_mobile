@@ -4,6 +4,7 @@ import React from 'react';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 import { AppState } from 'src/entities/AppState';
 import { GameConfigScreen } from 'src/screens/GameConfigScreen';
+import { GameScreen } from 'src/screens/GameScreen';
 import { InitialScreen } from 'src/screens/InitialScreen';
 import { RolesScreen } from 'src/screens/RolesScreen';
 import { WordsScreen } from 'src/screens/WordsScreen';
@@ -22,9 +23,12 @@ const AppNavigator = createStackNavigator(
         Roles: {
             screen: RolesScreen,
         },
+        Game: {
+            screen: GameScreen,
+        },
     },
     {
-        initialRouteName: 'Initial',
+        initialRouteName: 'Game',
     },
 );
 

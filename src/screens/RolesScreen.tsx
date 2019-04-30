@@ -1,4 +1,5 @@
 import { AntDesign } from '@expo/vector-icons';
+import { roleImages } from 'assets/images/map';
 import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
@@ -11,6 +12,7 @@ import {
     TouchableWithoutFeedback,
     View,
 } from 'react-native';
+import { NavigationTransitionProps } from 'react-navigation';
 import { NextStepButtonWithContainer } from 'src/components/NextStepButtonWithContainer';
 import { AppState } from 'src/entities/AppState';
 import { CodeName } from 'src/entities/CodeName';
@@ -20,62 +22,50 @@ interface IInjectedProps {
     appState: AppState;
 }
 
-interface ICondenameWithKey {
-    key: string;
-    codename: CodeName;
-}
-
-const images = {
-    [Role.RedTeam]: require('assets/images/red.png'),
-    [Role.BlueTeam]: require('assets/images/blue.png'),
-    [Role.Bystander]: require('assets/images/bystander.png'),
-    [Role.Assasin]: require('assets/images/assasin.png'),
-};
-
-function addKeys(codenames: CodeName[]) {
-    return codenames.map((codename) => ({ key: codename.word, codename }));
-}
-
 @inject('appState')
 @observer
-export class RolesScreen extends React.Component<IInjectedProps> {
+export class RolesScreen extends React.Component<IInjectedProps & NavigationTransitionProps> {
     public static navigationOptions = {
         title: 'Assign Roles',
     };
 
     public render() {
+        const keyExtractor = (codename: CodeName) => codename.word;
+
         return (
             <View style={styles.screenContainer}>
                 <FlatList
                     style={styles.wordListContainer}
-                    data={addKeys(this.props.appState.codeNames)}
+                    data={this.props.appState.codeNames}
                     renderItem={this.renderWord}
+                    keyExtractor={keyExtractor}
                 />
                 <NextStepButtonWithContainer onPress={this.goNext} />
             </View>
         );
     }
 
-    private renderWord = (wordInfo: ListRenderItemInfo<ICondenameWithKey>) => {
-        const word = wordInfo.item.codename.word;
+    private renderWord = (wordInfo: ListRenderItemInfo<CodeName>) => {
+        const codeName = wordInfo.item;
+
         return (
-            <View key={wordInfo.item.key} style={styles.wordContainer}>
-                <Text style={styles.word}>{word.toLowerCase()}</Text>
-                <View style={styles.rolesSelectorContainer}>{this.renderRoleImages(word)}</View>
+            <View key={codeName.word} style={styles.wordContainer}>
+                <Text style={styles.word}>{codeName.word.toLowerCase()}</Text>
+                <View style={styles.rolesSelectorContainer}>{this.renderRoleImages(codeName)}</View>
             </View>
         );
     };
 
-    private renderRoleImages(word: string) {
+    private renderRoleImages(codeName: CodeName) {
         const { appState } = this.props;
 
-        return Object.keys(images).map((roleKey) => {
+        return Object.keys(roleImages).map((roleKey) => {
             const role = Number(roleKey) as Role;
-            const currentWordRole = appState.getWordRole(word);
+            const currentWordRole = codeName.role;
             const isSelected = role === currentWordRole;
-            const roleImage = images[role];
+            const roleImage = roleImages[role];
 
-            const onPress = () => appState.setWordRole(word, role);
+            const onPress = () => appState.setCodeNameRole(codeName, role);
 
             return (
                 <TouchableWithoutFeedback key={roleKey} onPress={onPress}>
@@ -92,7 +82,7 @@ export class RolesScreen extends React.Component<IInjectedProps> {
     }
 
     private goNext = () => {
-        // noop
+        this.props.navigation.navigate('Game');
     };
 }
 

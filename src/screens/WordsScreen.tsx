@@ -19,17 +19,8 @@ import { NextStepButtonWithContainer } from 'src/components/NextStepButtonWithCo
 import { AppState } from 'src/entities/AppState';
 import { CodeName } from 'src/entities/CodeName';
 
-interface ICondenameWithKey {
-    key: string;
-    codename: CodeName;
-}
-
 interface IInjectedProps {
     appState: AppState;
-}
-
-function addKeys(codenames: CodeName[]) {
-    return codenames.map((codename) => ({ key: codename.word, codename }));
 }
 
 @inject('appState')
@@ -79,21 +70,24 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
             );
         }
 
+        const keyExtractor = (codename: CodeName) => codename.word;
+
         return (
             <FlatList
                 style={styles.wordListContainer}
-                data={addKeys(this.props.appState.codeNames)}
+                data={this.props.appState.codeNames}
                 renderItem={this.renderWord}
+                keyExtractor={keyExtractor}
             />
         );
     };
 
-    private renderWord = (wordInfo: ListRenderItemInfo<ICondenameWithKey>) => {
-        const onRemove = () => this.props.appState.removeWordFromCodeNames(wordInfo.item.codename.word);
+    private renderWord = (wordInfo: ListRenderItemInfo<CodeName>) => {
+        const onRemove = () => this.props.appState.removeCodeName(wordInfo.item);
 
         return (
-            <View key={wordInfo.item.key} style={styles.wordContainer}>
-                <Text style={styles.word}>{wordInfo.item.codename.word.toLowerCase()}</Text>
+            <View key={wordInfo.item.word} style={styles.wordContainer}>
+                <Text style={styles.word}>{wordInfo.item.word.toLowerCase()}</Text>
                 <TouchableHighlight onPress={onRemove}>
                     <AntDesign name="delete" size={32} color={colors.bystander} />
                 </TouchableHighlight>

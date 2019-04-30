@@ -20,7 +20,7 @@ export class InitialScreen extends React.PureComponent<NavigationTransitionProps
                 <View style={styles.imageContainer}>
                     <Image source={require('assets/images/bond.png')} style={styles.image} />
                 </View>
-                <NextStepButtonWithContainer onPress={this.goNext} />
+                <NextStepButtonWithContainer onPress={this.goNext} label={'Start Game'} />
             </LinearGradient>
         );
     }

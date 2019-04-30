@@ -5,6 +5,7 @@ import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 interface INextStepButtonWithContainerProps {
     disabled?: boolean;
     onPress(): void;
+    label?: string;
 }
 
 export class NextStepButtonWithContainer extends React.Component<INextStepButtonWithContainerProps> {
@@ -24,7 +25,7 @@ export class NextStepButtonWithContainer extends React.Component<INextStepButton
                             ...(this.props.disabled && styles.buttonTextDisabled),
                         }}
                     >
-                        Continue
+                        {this.props.label || 'Continue'}
                     </Text>
                 </TouchableHighlight>
             </View>
