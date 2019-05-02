@@ -4,9 +4,11 @@ import * as colors from 'config/colors';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import {
+    ActivityIndicator,
     Alert,
     Button,
     Dimensions,
+    FlatList,
     ImageBackground,
     ListRenderItemInfo,
     SectionList,
@@ -16,9 +18,11 @@ import {
     TouchableHighlight,
     View,
 } from 'react-native';
-import { Scene, SceneMap, TabBar, TabBarProps, TabView } from 'react-native-tab-view';
+import { Scene, TabBar, TabBarProps, TabView } from 'react-native-tab-view';
 import { NavigationParams, NavigationTransitionProps } from 'react-navigation';
+import { loadAssociations } from 'src/api/associations';
 import { AppState } from 'src/entities/AppState';
+import { Association } from 'src/entities/Association';
 import { CodeName } from 'src/entities/CodeName';
 import { Role } from 'src/entities/Role';
 import { getFriendlyAgentsRole, getOpponentAgentsRole } from 'src/entities/Team';
@@ -26,6 +30,21 @@ import { getFriendlyAgentsRole, getOpponentAgentsRole } from 'src/entities/Team'
 interface IInjectedProps {
     appState: AppState;
 }
+
+const codenamesKeyExtractor = (codename: CodeName) => codename.word;
+const associationKeyExtractor = (association: Association) =>
+    association.associationWord + association.associatedWords.join();
+
+const routesConfig = {
+    codeNames: {
+        key: 'codeNames',
+        index: 0,
+    },
+    associations: {
+        key: 'associations',
+        index: 1,
+    },
+};
 
 @inject('appState')
 @observer
@@ -41,30 +60,42 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
 
     public state = {
         index: 0,
-        routes: [{ key: 'codeNames', title: 'Code Names' }, { key: 'hints', title: 'Hints' }],
+        routes: [
+            { key: routesConfig.codeNames.key, title: 'Code Names' },
+            { key: routesConfig.associations.key, title: 'Hints' },
+        ],
     };
 
-    public componentDidMount() {
-        this.props.navigation.setParams({ finishGame: this.finishGame });
+    public async componentDidMount() {
+        const { navigation } = this.props;
+        navigation.setParams({ finishGame: this.finishGame });
+        await this.refreshAssociations();
     }
 
     public render() {
         const dimentions = Dimensions.get('window');
-        const onIndexChange = (index: number) => this.setState({ index });
 
         return (
             <TabView
                 navigationState={this.state}
-                renderScene={SceneMap({
-                    codeNames: () => <WordsTab {...this.props} />,
-                    hints: () => <WordsTab {...this.props} />,
-                })}
-                onIndexChange={onIndexChange}
+                renderScene={this.renderScene}
+                onIndexChange={this.onIndexChange}
                 initialLayout={{ width: dimentions.width, height: dimentions.height }}
                 renderTabBar={this.renderTabBar}
             />
         );
     }
+
+    private renderScene = ({ route }: Scene<any>) => {
+        switch (route.key) {
+            case 'codeNames':
+                return <WordsTab {...this.props} />;
+            case 'associations':
+                return <HintsTab {...this.props} />;
+            default:
+                return null;
+        }
+    };
 
     private renderTabBar = (props: TabBarProps) => {
         return <TabBar {...props} style={styles.tapBar} renderLabel={this.renderTapBarLabel} />;
@@ -73,6 +104,13 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
     private renderTapBarLabel = ({ route }: Scene<any>) => (
         <Text style={styles.tapBarLabel}>{route.title.toUpperCase()}</Text>
     );
+
+    private onIndexChange = async (index: number) => {
+        this.setState({ index });
+        if (index === routesConfig.associations.index) {
+            await this.refreshAssociations();
+        }
+    };
 
     private finishGame = () => {
         Alert.alert('Finish Game', 'Are you sure?', [
@@ -85,13 +123,21 @@ export class GameScreen extends React.Component<NavigationTransitionProps & IInj
             { text: 'No' },
         ]);
     };
+
+    private async refreshAssociations() {
+        const { appState } = this.props;
+        if (appState.associationsWereLoaded) {
+            return;
+        }
+
+        const associations = await loadAssociations(appState.getVisibleCodeNames(), appState.selectedTeam);
+        appState.setAssociations(associations);
+    }
 }
 
 @observer
 class WordsTab extends React.Component<IInjectedProps> {
     public render() {
-        const keyExtractor = (codename: CodeName) => codename.word;
-
         return (
             <View style={styles.screenContainer}>
                 <SectionList
@@ -99,7 +145,7 @@ class WordsTab extends React.Component<IInjectedProps> {
                     sections={this.buildSections()}
                     renderItem={this.renderWord}
                     renderSectionHeader={this.renderSection}
-                    keyExtractor={keyExtractor}
+                    keyExtractor={codenamesKeyExtractor}
                     initialNumToRender={15}
                 />
             </View>
@@ -153,6 +199,110 @@ class WordsTab extends React.Component<IInjectedProps> {
                         <EyeIcon height={32} width={32} fill={colors.bystander} />
                     </TouchableHighlight>
                 </View>
+            </View>
+        );
+    };
+}
+
+@observer
+class HintsTab extends React.Component<IInjectedProps> {
+    public render() {
+        const { appState } = this.props;
+        if (!appState.enableAi) {
+            return this.renderHintsDisabledScreen();
+        }
+
+        if (!appState.associationsWereLoaded) {
+            return this.renderLoadingScreen();
+        }
+
+        const sortedAssociations = appState.associations.sort((a, b) => a.overallScore - b.overallScore);
+
+        if (sortedAssociations.length === 0) {
+            return this.renderNoAssociationsScreen();
+        }
+
+        return (
+            <View style={styles.screenContainer}>
+                <FlatList
+                    style={styles.wordListContainer}
+                    data={sortedAssociations}
+                    renderItem={this.renderAssociation}
+                    keyExtractor={associationKeyExtractor}
+                    initialNumToRender={10}
+                />
+            </View>
+        );
+    }
+
+    private renderAssociation = (associationInfo: ListRenderItemInfo<Association>) => {
+        const association = associationInfo.item;
+
+        return (
+            <View style={styles.associationContainer}>
+                <Text style={styles.associationHeader}>
+                    {association.associationWord} {association.associatedWords.length}
+                </Text>
+                {association.associatedWords.map(this.renderAssociationWord)}
+                {this.renderRivalWords(association)}
+            </View>
+        );
+    };
+
+    private renderAssociationWord = (word: string) => {
+        const codeName = this.props.appState.getCodeNameByWord(word);
+        const roleImage = roleImages[codeName.role];
+
+        return (
+            <View key={word} style={styles.associationWordContainer}>
+                <ImageBackground
+                    source={roleImage}
+                    style={styles.associationRoleImageContainer}
+                    imageStyle={styles.associationRoleImage}
+                />
+                <Text style={styles.associationWord}>{codeName.word.toLowerCase()}</Text>
+            </View>
+        );
+    };
+
+    private renderRivalWords = (association: Association) => {
+        const significantRivalWords = association.rivalWords.filter((_, i) => {
+            const rivalWordScore = association.rivalWordScores[i];
+            return rivalWordScore >= association.guessableScore / 1.2;
+        });
+
+        if (significantRivalWords.length === 0) {
+            return null;
+        }
+
+        return (
+            <>
+                <Text style={styles.canBeConfusedLabel}>Can be confused with:</Text>
+                {significantRivalWords.map(this.renderAssociationWord)}
+            </>
+        );
+    };
+
+    private renderHintsDisabledScreen = () => {
+        return (
+            <View style={styles.screenContainer}>
+                <Text style={styles.noHintsLabel}>Hints are hidden becase "AI Help" was disabled</Text>
+            </View>
+        );
+    };
+
+    private renderNoAssociationsScreen = () => {
+        return (
+            <View style={styles.screenContainer}>
+                <Text style={styles.noHintsLabel}>No associations found :(</Text>
+            </View>
+        );
+    };
+
+    private renderLoadingScreen = () => {
+        return (
+            <View style={styles.screenContainer}>
+                <ActivityIndicator size="large" />
             </View>
         );
     };
@@ -227,5 +377,52 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'flex-end',
+    },
+    noHintsLabel: {
+        fontSize: 16,
+        opacity: 0.3,
+    },
+    associationContainer: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        width: '100%',
+        backgroundColor: 'white',
+        borderBottomWidth: 2,
+        borderBottomColor: colors.gray,
+        paddingLeft: 15,
+        paddingRight: 15,
+    },
+    associationHeader: {
+        marginTop: 5,
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    associationWordContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        height: 50,
+        width: '100%',
+    },
+    associationRoleImageContainer: {
+        height: 30,
+        width: 30,
+        resizeMode: 'contain',
+        marginRight: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    associationRoleImage: {
+        height: 30,
+        width: 30,
+        borderRadius: 15,
+    },
+    associationWord: {
+        fontSize: 16,
+        fontStyle: 'italic',
+    },
+    canBeConfusedLabel: {
+        fontStyle: 'italic',
     },
 });

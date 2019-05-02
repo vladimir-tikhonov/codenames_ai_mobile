@@ -68,6 +68,7 @@
       "no-trailing-whitespace": true,
       "no-var-keyword": true,
       "object-curly-spacing": [true, "always"],
+      "object-literal-key-quotes": [true, "as-needed"],
       "object-literal-sort-keys": false,
       "one-variable-per-declaration": true,
       "prefer-const": true,
@@ -76,7 +77,7 @@
       "promise-function-async": true,
       "restrict-plus-operands": true,
       "semicolon": [true, "always", "ignore-bound-class-methods"],
-      "space-before-function-paren": [true, "never"],
+      "space-before-function-paren": [true, { "asyncArrow": "always" }],
       "space-in-parens": [true, "never"],
       "strict-type-predicates": true,
       "switch-default": true,
@@ -95,7 +96,7 @@
       ],
       "triple-equals": true,
       "quotemark": [true, "single", "jsx-double"],
-      "ter-indent": [true, 4],
+      "ter-indent": [true, 4, { "SwitchCase": 1 }],
       "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"],
       "whitespace": [true, "check-branch", "check-operator", "check-typecast", "check-decl", "check-separator"]
     }
