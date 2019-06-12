@@ -16,37 +16,6 @@ export class AppState {
     @observable public associationsWereLoaded = false;
     @observable public associations: Association[] = [];
 
-    public constructor() {
-        const initialWords = [
-            'Австралия',
-            'Автобус',
-            'Автомобиль',
-            'Аист',
-            'Акция',
-            'Аладдин',
-            'Америка',
-            'Англия',
-            'Апельсин',
-            'Арктика',
-            'Африка',
-            'Баба-яга',
-            'Банан',
-            'Банк',
-            'Баран',
-            'Бассейн',
-            'Батарея',
-            'Белок',
-            'Берег',
-            'Биатлон',
-            'Блок',
-            'Боб',
-            'Богатырь',
-            'Бокс',
-            'Брак',
-        ];
-        initialWords.forEach((w, i) => this.addWordToCodeNames(w, i % 4));
-    }
-
     public addWordToCodeNames(word: string, role?: Role) {
         const wordAlreadyExists = this.codeNames.some((codename) => codename.word === word);
         if (wordAlreadyExists) {
@@ -55,6 +24,10 @@ export class AppState {
 
         this.codeNames.push(new CodeName(word, role));
         this.resetAssociations();
+    }
+
+    public addMultipleWordsToCodeNames(words: string[]) {
+        words.forEach((word) => this.addWordToCodeNames(word));
     }
 
     public getCodeNamesWithRole(role: Role, customOptions?: VisibilityOptions) {

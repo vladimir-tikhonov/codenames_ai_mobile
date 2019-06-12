@@ -1,8 +1,10 @@
-import { Camera, Trash } from 'assets/icons';
+import { Camera as CameraIcon, Trash } from 'assets/icons';
 import * as colors from 'config/colors';
+import { ImagePicker, Permissions } from 'expo';
 import { inject, observer } from 'mobx-react';
 import React from 'react';
 import {
+    ActivityIndicator,
     FlatList,
     KeyboardAvoidingView,
     ListRenderItemInfo,
@@ -15,6 +17,7 @@ import {
     View,
 } from 'react-native';
 import { NavigationTransitionProps } from 'react-navigation';
+import { detectWordsOnImage } from 'src/api/detection';
 import { NextStepButtonWithContainer } from 'src/components/NextStepButtonWithContainer';
 import { AppState } from 'src/entities/AppState';
 import { CodeName } from 'src/entities/CodeName';
@@ -23,18 +26,34 @@ interface IInjectedProps {
     appState: AppState;
 }
 
+interface WordsScreenState {
+    photoIsBeingProcessed: boolean;
+}
+
 const keyExtractor = (codename: CodeName) => codename.word;
 
 @inject('appState')
 @observer
-export class WordsScreen extends React.Component<NavigationTransitionProps & IInjectedProps> {
+export class WordsScreen extends React.Component<NavigationTransitionProps & IInjectedProps, WordsScreenState> {
     public static navigationOptions = {
         title: 'Enter Code Names',
+    };
+
+    public state = {
+        photoIsBeingProcessed: false,
     };
 
     private inputRef = React.createRef<TextInput>();
 
     public render() {
+        if (this.state.photoIsBeingProcessed) {
+            return (
+                <View style={styles.screenContainer}>
+                    <ActivityIndicator size="large" />
+                </View>
+            );
+        }
+
         return (
             <View style={styles.screenContainer}>
                 <KeyboardAvoidingView behavior="padding" style={styles.wordListContainer} keyboardVerticalOffset={100}>
@@ -48,8 +67,8 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
                             onSubmitEditing={this.onNewWordSubmit}
                         />
                         <View style={styles.cameraButtonWrapper}>
-                            <TouchableHighlight>
-                                <Camera height={28} width={28} fill={colors.bystander} />
+                            <TouchableHighlight onPress={this.onCameraPress}>
+                                <CameraIcon height={28} width={28} fill={colors.bystander} />
                             </TouchableHighlight>
                         </View>
                     </View>
@@ -102,6 +121,25 @@ export class WordsScreen extends React.Component<NavigationTransitionProps & IIn
             this.props.appState.addWordToCodeNames(newWord.trim());
         }
         this.inputRef.current!.clear();
+    };
+
+    private onCameraPress = async () => {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        if (status !== 'granted') {
+            return;
+        }
+        const results = await ImagePicker.launchCameraAsync({ quality: 0.2, exif: false });
+        if (results.cancelled) {
+            return;
+        }
+
+        try {
+            this.setState({ photoIsBeingProcessed: true });
+            const words = await detectWordsOnImage(results.uri);
+            this.props.appState.addMultipleWordsToCodeNames(words);
+        } finally {
+            this.setState({ photoIsBeingProcessed: false });
+        }
     };
 
     private goNext = () => {

@@ -21,6 +21,6 @@
     "include": [
         "App.ts",
         "src/**/*",
-        "assets/**/*",
+        "assets/**/*"
     ]
 }
